@@ -72,11 +72,3 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
-
-build/
-UsersADMINI~1AppDataLocalTemptmp0_r_1lor
-build-*/
-.qmake.stash
-.qtc_clangd/
-debug/
-release/
