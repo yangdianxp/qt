@@ -80,3 +80,5 @@ build-*/
 .qtc_clangd/
 debug/
 release/
+CMakeLists.txt.user
+*.pro.user
