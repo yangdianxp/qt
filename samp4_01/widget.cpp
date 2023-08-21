@@ -92,6 +92,10 @@ void Widget::on_btnGetChars_clicked()
 void Widget::on_btnClear_clicked()
 {
     ui->plainTextEdit->clear();
+
+    QString str1= "你的，我的，他的";
+    QString DeStr= "的";
+    str1.remove(DeStr[0]);
 }
 
 
