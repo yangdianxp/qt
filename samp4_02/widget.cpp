@@ -302,5 +302,8 @@ void Widget::on_pushButton_28_clicked()
 void Widget::on_btnClearText_clicked()
 {
     ui->plainTextEdit->clear();
+    QString name= "张三";
+    int age= 25;
+    QString str2= QString("他名叫%1, 今年%2 岁").arg(name).arg(age);
 }
 
