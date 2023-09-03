@@ -113,7 +113,7 @@ void MainWindow::on_actWidget_triggered()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     Q_UNUSED(index);
-    bool  en=ui->tabWidget->count()>0; //再无页面时
-    ui->tabWidget->setVisible(en);
+    // bool  en=ui->tabWidget->count()>0; //再无页面时
+    ui->tabWidget->setVisible(false);
 }
 
