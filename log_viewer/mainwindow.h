@@ -21,6 +21,9 @@ public:
 signals:
     void fileNameObtained(QString fileName);
 
+public slots:
+    void do_changeScrollBarFileMaximum(int value);
+
 private slots:
     void on_actOpen_triggered();
 

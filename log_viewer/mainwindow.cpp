@@ -3,6 +3,7 @@
 #include "utility.h"
 
 #include <QFileDialog>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,10 +12,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setCentralWidget(ui->centerSplitter);
 
+    ui->verticalScrollBarFile->setMinimum(1);
+
     mReadFileWorker = std::make_shared<ReadFileWorker>();
     mReadFileWorker->moveToThread(&mReadFileThread);
     connect(this, &MainWindow::fileNameObtained, mReadFileWorker.get(), &ReadFileWorker::Scan);
     mReadFileThread.start();
+
+    connect(mReadFileWorker.get(), &ReadFileWorker::ReadLine, ui->plainTextEditFile, &QPlainTextEdit::appendPlainText);
+    connect(mReadFileWorker.get(), &ReadFileWorker::ClearPlainTextEditFile, ui->plainTextEditFile, &QPlainTextEdit::clear);
+    connect(mReadFileWorker.get(), &ReadFileWorker::ChangeScrollBarFileMaximum, this, &MainWindow::do_changeScrollBarFileMaximum);
+    connect(mReadFileWorker.get(), &ReadFileWorker::SetScrollBarFileValue, ui->plainTextEditFile->verticalScrollBar(), &QScrollBar::setValue);
+    connect(ui->verticalScrollBarFile, &QScrollBar::valueChanged, mReadFileWorker.get(), &ReadFileWorker::ReadFilePos);
 }
 
 MainWindow::~MainWindow()
@@ -22,10 +31,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::do_changeScrollBarFileMaximum(int value)
+{
+    ui->verticalScrollBarFile->setMaximum(value);
+}
 
 void MainWindow::on_actOpen_triggered()
 {
     MYLOG << "on_actOpen_triggered";
+
+    QScrollBar *vScrollBar = ui->plainTextEditFile->verticalScrollBar();
+    vScrollBar->setValue(500);
 
     QString file= QFileDialog::getOpenFileName(this, "选择文件", "", "(*)");
     if (file.isEmpty())
