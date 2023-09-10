@@ -12,6 +12,7 @@ signals:
     void ChangeScrollBarFileMaximum(int value);
     void ClearPlainTextEditFile();
     void SetScrollBarFileValue(int value);
+    void SetReadFileProgress(int value);
 
 public slots:
     void Scan(QString fileName);
@@ -24,7 +25,6 @@ private:
     QString mFileName;
     QHash<int, qint64> mLineNoPos;
     std::shared_ptr<QFile> mFile;
-    std::shared_ptr<QTextStream> mTextStream;
 };
 
 #endif // READFILEWORKER_H

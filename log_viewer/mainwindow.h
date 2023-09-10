@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QProgressBar>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +30,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QProgressBar *mReadFileProgress;
     QThread mReadFileThread;
     std::shared_ptr<ReadFileWorker> mReadFileWorker = nullptr;
 };

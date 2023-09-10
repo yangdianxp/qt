@@ -11,6 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setCentralWidget(ui->centerSplitter);
+    mReadFileProgress = new QProgressBar(this);
+    mReadFileProgress->setMinimum(0);
+    mReadFileProgress->setMaximum(1000);
+    ui->statusbar->addWidget(mReadFileProgress);
 
     ui->verticalScrollBarFile->setMinimum(1);
 
@@ -23,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mReadFileWorker.get(), &ReadFileWorker::ClearPlainTextEditFile, ui->plainTextEditFile, &QPlainTextEdit::clear);
     connect(mReadFileWorker.get(), &ReadFileWorker::ChangeScrollBarFileMaximum, this, &MainWindow::do_changeScrollBarFileMaximum);
     connect(mReadFileWorker.get(), &ReadFileWorker::SetScrollBarFileValue, ui->plainTextEditFile->verticalScrollBar(), &QScrollBar::setValue);
+    connect(mReadFileWorker.get(), &ReadFileWorker::SetReadFileProgress, mReadFileProgress, &QProgressBar::setValue);
     connect(ui->verticalScrollBarFile, &QScrollBar::valueChanged, mReadFileWorker.get(), &ReadFileWorker::ReadFilePos);
 }
 
