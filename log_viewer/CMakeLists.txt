@@ -23,8 +23,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(log_viewer
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        readfileworker.h readfileworker.cpp
+        scanfileworker.h scanfileworker.cpp
         utility.h
+        readfileworker.h readfileworker.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET log_viewer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

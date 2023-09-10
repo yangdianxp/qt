@@ -18,22 +18,49 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->verticalScrollBarFile->setMinimum(1);
 
-    mReadFileWorker = std::make_shared<ReadFileWorker>();
+    mScanFileWorker = std::make_shared<ScanFileWorker>();
+    mScanFileWorker->moveToThread(&mScanFileThread);
+    connect(this, &MainWindow::fileNameObtained, mScanFileWorker.get(), &ScanFileWorker::Scan);
+    mScanFileThread.start();
+
+    mReadFileWorker = std::make_shared<ReadFileWorker>(this);
     mReadFileWorker->moveToThread(&mReadFileThread);
-    connect(this, &MainWindow::fileNameObtained, mReadFileWorker.get(), &ReadFileWorker::Scan);
+    connect(this, &MainWindow::fileNameObtained, mReadFileWorker.get(), &ReadFileWorker::OpenFile);
     mReadFileThread.start();
+
+    connect(mScanFileWorker.get(), &ScanFileWorker::ReadLine, ui->plainTextEditFile, &QPlainTextEdit::appendPlainText);
+    connect(mScanFileWorker.get(), &ScanFileWorker::ClearPlainTextEditFile, ui->plainTextEditFile, &QPlainTextEdit::clear);
+    connect(mScanFileWorker.get(), &ScanFileWorker::ChangeScrollBarFileMaximum, this, &MainWindow::do_changeScrollBarFileMaximum);
+    connect(mScanFileWorker.get(), &ScanFileWorker::SetScrollBarFileValue, ui->plainTextEditFile->verticalScrollBar(), &QScrollBar::setValue);
+    connect(mScanFileWorker.get(), &ScanFileWorker::SetReadFileProgress, mReadFileProgress, &QProgressBar::setValue);
 
     connect(mReadFileWorker.get(), &ReadFileWorker::ReadLine, ui->plainTextEditFile, &QPlainTextEdit::appendPlainText);
     connect(mReadFileWorker.get(), &ReadFileWorker::ClearPlainTextEditFile, ui->plainTextEditFile, &QPlainTextEdit::clear);
-    connect(mReadFileWorker.get(), &ReadFileWorker::ChangeScrollBarFileMaximum, this, &MainWindow::do_changeScrollBarFileMaximum);
     connect(mReadFileWorker.get(), &ReadFileWorker::SetScrollBarFileValue, ui->plainTextEditFile->verticalScrollBar(), &QScrollBar::setValue);
-    connect(mReadFileWorker.get(), &ReadFileWorker::SetReadFileProgress, mReadFileProgress, &QProgressBar::setValue);
     connect(ui->verticalScrollBarFile, &QScrollBar::valueChanged, mReadFileWorker.get(), &ReadFileWorker::ReadFilePos);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::ClearLineNoPos()
+{
+    QMutexLocker locker(&mLineNoPosMutex);
+    mLineNoPos.clear();
+}
+
+void MainWindow::AddLineNoPos(int lineNo, qint64 pos)
+{
+    QMutexLocker locker(&mLineNoPosMutex);
+    mLineNoPos[lineNo] = pos;
+}
+
+qint64 MainWindow::GetLineNoPos(int lineNo)
+{
+    QMutexLocker locker(&mLineNoPosMutex);
+    return mLineNoPos[lineNo];
 }
 
 void MainWindow::do_changeScrollBarFileMaximum(int value)
