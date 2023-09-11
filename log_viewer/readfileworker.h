@@ -22,6 +22,7 @@ private:
     QString mFileName;
     std::shared_ptr<QFile> mFile;
     MainWindow* mMainWindow;
+    std::string mDataCache;
 };
 
 #endif // READFILEWORKER_H

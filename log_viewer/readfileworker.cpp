@@ -3,7 +3,7 @@
 
 #include <QScrollBar>
 
-ReadFileWorker::ReadFileWorker(MainWindow* mainWindow) : mMainWindow(mainWindow)
+ReadFileWorker::ReadFileWorker(MainWindow* mainWindow) : mMainWindow(mainWindow), mDataCache(8192, '\0')
 {
 
 }
@@ -22,12 +22,12 @@ void ReadFileWorker::ReadFilePos(int lineNo)
 {
     if (mFile)
     {
-        std::string data(4096, '\0');
+        memset(mDataCache.data(), 0, mDataCache.size());
         qint64 pos = mMainWindow->GetLineNoPos(lineNo);
         mFile->seek(pos);
-        mFile->read(data.data(), 4096);
+        qint64 readLen = mFile->read(mDataCache.data(), mDataCache.size());
         emit ClearPlainTextEditFile();
-        emit ReadLine(QString::fromStdString(data));
+        emit ReadLine(QString::fromUtf8(mDataCache.data(), readLen));
         emit SetScrollBarFileValue(0);
     }
 }

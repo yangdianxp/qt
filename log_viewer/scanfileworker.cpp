@@ -35,17 +35,21 @@ void ScanFileWorker::Scan(QString fileName)
             pos = pos + data_pos + 2;
             mainWindow->AddLineNoPos(lineNo++, pos);
             QByteArray lineData = data.left(data_pos + 1);
-            showData.append(lineData);
-            if (lineNo > 300)
+            if (!alreadyUpdate)
+            {
+                showData.append(lineData);
+            }
+            if (!alreadyUpdate && lineNo > 300)
             {
                 emit ReadLine(showData);
                 emit SetScrollBarFileValue(0);
+                showData.clear();
                 alreadyUpdate = true;
             }
             data.remove(0, data_pos + 1);
         }
         MYLOG << "scan lineNo:" << lineNo;
-        emit ChangeScrollBarFileMaximum(lineNo);
+        emit ChangeScrollBarFileMaximum(lineNo - 1);
         int progress = ((double)pos / (double)endPos) * 1000.0;
         MYLOG << "scan lineNo:" << lineNo << " progress:" << progress;
         emit SetReadFileProgress(progress);
