@@ -4,6 +4,23 @@
 #include    <QFileDialog>
 #include    <QMessageBox>
 #include    <QScrollBar>
+#include    <QString>
+#include    <QRandomGenerator>
+#include <QTimer>
+#include <QDebug>
+
+QString generateRandomString(int length) {
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+
+    QString randomString;
+    for(int i=0; i<length; ++i)
+    {
+        int index = QRandomGenerator::global()->bounded(possibleCharacters.length());
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+    return randomString;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -76,10 +93,50 @@ void MainWindow::selectData()
     sqlQuery1.prepare("SELECT count(id) FROM person");
     sqlQuery1.exec();
     sqlQuery1.next();
-    int totalRows = sqlQuery1.value(0).toInt();
-    qDebug() << totalRows;
-    ui->verticalScrollBar->setMaximum(totalRows);
+    mTotalRows = sqlQuery1.value(0).toInt();
+    qDebug() << mTotalRows;
+    ui->verticalScrollBar->setMaximum(mTotalRows);
 
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged, this, &MainWindow::do_scrollBarChange);
+
+    // 创建一个QTimer对象
+    QTimer *timer = new QTimer(this);
+
+    // 连接QTimer的timeout()信号到你想要执行的槽函数
+    connect(timer, &QTimer::timeout, this, [this](){
+        QSqlQuery query;
+        query.prepare("INSERT INTO person (name, content) VALUES (:name, :content)");
+        query.bindValue(":name", generateRandomString(5));
+        query.bindValue(":content", generateRandomString(10));
+        query.exec();
+        this->mTotalRows++;
+        this->ui->verticalScrollBar->setMaximum(this->mTotalRows);
+        int showIndex = this->mTotalRows - this->ui->verticalScrollBar->value();
+        this->ui->verticalScrollBar->setValue(showIndex > 10 ? this->mTotalRows - 10 : showIndex);
+        // emit this->ui->verticalScrollBar->valueChanged(showIndex > 10 ? this->mTotalRows - 10 : showIndex);
+    });
+
+    timer->start(1000);
+}
+
+
+
+void MainWindow::on_actAddData_triggered()
+{
+//    QSqlQuery query;
+//    query.prepare("INSERT INTO person (name, content) VALUES (:name, :content)");
+//    query.bindValue(":name", generateRandomString(5));
+//    query.bindValue(":content", generateRandomString(10));
+//    query.exec();
+
+//    QSqlQuery sqlQuery1;
+//    sqlQuery1.prepare("SELECT count(id) FROM person");
+//    sqlQuery1.exec();
+//    sqlQuery1.next();
+//    int totalRows = sqlQuery1.value(0).toInt();
+//    qDebug() << totalRows;
+//    ui->verticalScrollBar->setMaximum(totalRows);
+
+//    emit ui->verticalScrollBar->valueChanged(ui->verticalScrollBar->value());
 }
 

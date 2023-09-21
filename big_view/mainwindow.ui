@@ -44,6 +44,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actOpenDB"/>
+   <addaction name="actAddData"/>
   </widget>
   <action name="actOpenDB">
    <property name="icon">
@@ -55,6 +56,18 @@
    </property>
    <property name="toolTip">
     <string>actOpenDB</string>
+   </property>
+  </action>
+  <action name="actAddData">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/images/images/316.bmp</normaloff>:/images/images/316.bmp</iconset>
+   </property>
+   <property name="text">
+    <string>增加数据</string>
+   </property>
+   <property name="toolTip">
+    <string>增加数据</string>
    </property>
   </action>
  </widget>

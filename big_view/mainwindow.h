@@ -21,13 +21,15 @@ private slots:
 
     void on_actOpenDB_triggered();
 
+    void on_actAddData_triggered();
+
 private:
     void    selectData();       //查询数据
 
 private:
     QSqlDatabase  DB;   //数据库
     QSqlQueryModel  *qryModel;  //数据模型
-
+    int mTotalRows = 0;
 private:
     Ui::MainWindow *ui;
 };
