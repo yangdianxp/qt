@@ -82,3 +82,5 @@ debug/
 release/
 CMakeLists.txt.user
 *.pro.user
+
+person.db3
