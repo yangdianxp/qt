@@ -8,6 +8,7 @@
 #include    <QRandomGenerator>
 #include <QTimer>
 #include <QDebug>
+#include <QWheelEvent>
 
 QString generateRandomString(int length) {
     const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
@@ -27,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->verticalScrollBar->setHidden(true);
 }
 
 MainWindow::~MainWindow()
@@ -37,7 +39,7 @@ MainWindow::~MainWindow()
 void MainWindow::do_scrollBarChange(int value)
 {
     QSqlQuery sqlQuery;
-    sqlQuery.prepare("SELECT id, name, content FROM person WHERE id >= :id limit 10");
+    sqlQuery.prepare("SELECT id, name, content FROM person WHERE id >= :id limit 100");
     sqlQuery.bindValue(":id", value);
     sqlQuery.exec();
     qryModel->setQuery(std::move(sqlQuery));
@@ -46,6 +48,22 @@ void MainWindow::do_scrollBarChange(int value)
         QMessageBox::critical(this, "错误", "数据表查询错误,错误信息\n"
                               +qryModel->lastError().text());
         return;
+    }
+
+    int pageRows = ui->tableView->verticalScrollBar()->pageStep();
+    ui->verticalScrollBar->setMaximum(this->mTotalRows - pageRows + 1);
+
+    if (ui->verticalScrollBar->isHidden())
+    {
+        int totalHeight = 0;
+        for(int i = 0; i < ui->tableView->model()->rowCount(); i++){
+            totalHeight += ui->tableView->rowHeight(i);
+            if (totalHeight > ui->tableView->height())
+            {
+                ui->verticalScrollBar->setHidden(false);
+                break;
+            }
+        }
     }
 }
 
@@ -67,7 +85,7 @@ void MainWindow::on_actOpenDB_triggered()
 void MainWindow::selectData()
 {
     QSqlQuery sqlQuery;
-    sqlQuery.prepare("SELECT id, name, content FROM person WHERE id >= :id limit 10");
+    sqlQuery.prepare("SELECT id, name, content FROM person WHERE id >= :id limit 100");
     sqlQuery.bindValue(":id", 1);
     sqlQuery.exec();
 
@@ -95,8 +113,19 @@ void MainWindow::selectData()
     sqlQuery1.next();
     mTotalRows = sqlQuery1.value(0).toInt();
     qDebug() << mTotalRows;
-    ui->verticalScrollBar->setMaximum(mTotalRows);
 
+    int totalHeight = 0;
+    for(int i = 0; i < ui->tableView->model()->rowCount(); i++){
+        totalHeight += ui->tableView->rowHeight(i);
+        if (totalHeight > ui->tableView->height())
+        {
+            ui->verticalScrollBar->setHidden(false);
+            break;
+        }
+    }
+
+    int pageRows = ui->tableView->verticalScrollBar()->pageStep();
+    ui->verticalScrollBar->setMaximum(this->mTotalRows - pageRows + 1);
     connect(ui->verticalScrollBar, &QScrollBar::valueChanged, this, &MainWindow::do_scrollBarChange);
 
     // 创建一个QTimer对象
@@ -110,13 +139,37 @@ void MainWindow::selectData()
         query.bindValue(":content", generateRandomString(10));
         query.exec();
         this->mTotalRows++;
-        this->ui->verticalScrollBar->setMaximum(this->mTotalRows);
-        int showIndex = this->mTotalRows - this->ui->verticalScrollBar->value();
-        this->ui->verticalScrollBar->setValue(showIndex > 10 ? this->mTotalRows - 10 : showIndex);
-        // emit this->ui->verticalScrollBar->valueChanged(showIndex > 10 ? this->mTotalRows - 10 : showIndex);
+        emit this->ui->verticalScrollBar->valueChanged(this->ui->verticalScrollBar->value());
     });
 
     timer->start(1000);
+}
+
+void MainWindow::wheelEvent(QWheelEvent* event)
+{
+    if (ui->verticalScrollBar->maximum() >= 2)
+    {
+        QPoint point = event->angleDelta();
+        if (point.y() > 0)
+        {
+            int setValue = ui->verticalScrollBar->value() - 1;
+            if (setValue < 1)
+            {
+                setValue = 1;
+            }
+            ui->verticalScrollBar->setValue(setValue);
+        }
+        else
+        {
+            int setValue = ui->verticalScrollBar->value() + 1;
+            if (setValue > ui->verticalScrollBar->maximum())
+            {
+                setValue = ui->verticalScrollBar->maximum();
+            }
+            ui->verticalScrollBar->setValue(setValue);
+        }
+    }
+    QWidget::wheelEvent(event);
 }
 
 

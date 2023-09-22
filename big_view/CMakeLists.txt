@@ -24,6 +24,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         res.qrc
+        mytableview.h mytableview.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET big_view APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -43,6 +44,7 @@ else()
     endif()
 endif()
 
+target_include_directories(big_view PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(big_view PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
