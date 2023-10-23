@@ -81,6 +81,10 @@ build-*/
 debug/
 release/
 CMakeLists.txt.user
+CMakePresets.json
+CMakeUserPresets.json
 *.pro.user
+.vs/
+out/
 
 person.db3
